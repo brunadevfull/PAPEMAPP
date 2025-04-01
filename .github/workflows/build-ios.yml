@@ -1,0 +1,48 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # permite rodar manualmente
+
+jobs:
+  build:
+    runs-on: macos-14  # Gratuito para repositórios públicos com chip M1
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Instalar dependências com CocoaPods
+        run: |
+          cd ios
+          pod install
+
+      - name: Build do app
+        run: |
+          cd ios
+          xcodebuild -workspace SeuApp.xcworkspace \
+            -scheme SeuApp \
+            -sdk iphoneos \
+            -configuration Release \
+            -derivedDataPath build
+
+      # Se quiser gerar o .ipa
+      - name: Exportar IPA
+        run: |
+          cd ios
+          mkdir -p output
+          xcodebuild -exportArchive \
+            -archivePath build/Build/Products/Release-iphoneos/SeuApp.xcarchive \
+            -exportPath output \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload do IPA como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ipa
+          path: ios/output/*.ipa
