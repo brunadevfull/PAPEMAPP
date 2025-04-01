@@ -14,3 +14,7 @@ workflows:
       - name: Run tests on existing IPA
         script: |
           # Seu script de teste aqui
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
