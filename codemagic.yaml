@@ -1,26 +1,16 @@
 workflows:
-  ios-test-existing-ipa:
-    name: Test Existing IPA
-    instance_type: mac_mini_m1
+  ios-workflow:
     environment:
+      ios_signing:
+        # suas configurações de assinatura
       xcode: latest
     scripts:
-      - name: Download and install IPA
+      - name: Start iOS simulator
         script: |
-          echo "Setting up test environment..."
-          # Aqui você pode adicionar comandos para baixar seu IPA de algum lugar, se necessário
-          # curl -o app.ipa https://your-storage-url/app.ipa
+          xcrun simctl list
+          UDID=$(xcrun simctl list | grep -w "iPhone 14" | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          xcrun simctl boot $UDID || true
+          
       - name: Run tests on existing IPA
         script: |
-          echo "Running tests on existing IPA..."
-          # Instalar o IPA no simulador (substitua pelo caminho do seu arquivo .ipa)
-          APP_PATH="/var/www/html/APP_PAPEM/app.ipa"
-          xcrun simctl install booted "$APP_PATH"
-          
-          # Iniciar o aplicativo no simulador (substitua pelo bundle identifier do seu app)
-          xcrun simctl launch booted "com.papem.yourapp"
-          
-          # Execute seus testes aqui
-          # xcodebuild test-without-building ...
-    artifacts:
-      - /tmp/test_results/*.xcresult
+          # Seu script de teste aqui
